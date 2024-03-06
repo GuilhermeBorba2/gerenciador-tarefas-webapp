@@ -4,6 +4,8 @@ import PasswordPage from 'pages/PasswordPage.vue';
 import menuTaskComponent from 'components/Menu/menuTaskComponent.vue';
 import createUser from 'pages/CreateUserPage.vue';
 import { useUserStore } from 'stores/user-store';
+import updateUserPage from 'pages/UpdateUserPage.vue'
+import createTask from 'pages/CreatetaskPage.vue'
 
 
 const setUiParams = (to, from, next) =>{
@@ -26,7 +28,8 @@ const routes = [
         path: '',
         name: 'menutaskcomponent',
         component: menuTaskComponent,
-        beforeEnter: setUiParams
+        beforeEnter: setUiParams,
+        meta: { requiresAuth: true },
       }
     ]
   },
@@ -34,6 +37,18 @@ const routes = [
     name: 'login',
     path: '/',
     component: loginPage,
+    meta: { requiresAuth: false },
+  },
+  {
+    name: 'createTask',
+    path: '/createTask',
+    component: createTask,
+    meta: { requiresAuth: true },
+  },
+  {
+    name: 'updateUser',
+    path: '/updateuser',
+    component: updateUserPage,
     meta: { requiresAuth: false },
   },
   {

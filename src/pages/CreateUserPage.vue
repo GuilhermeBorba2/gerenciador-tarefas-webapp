@@ -1,13 +1,14 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed } from 'vue'
 import { useQuasar } from 'quasar';
 import { useUserStore } from 'src/stores/user-store';
-import { useGlobalMessageStore } from 'stores/global-message'
+import { useGlobalMessageStore } from 'stores/global-message';
 import { useRouter } from 'vue-router';
+
 const $q = useQuasar();
 const userStore = useUserStore();
-
 const router = useRouter();
+
 
 const user = ref({
   'username': '',
@@ -15,55 +16,34 @@ const user = ref({
   'email': '',
   'nickname': '',
   'phonenumber': '',
-
 });
 
-const voltar=()=>{
-  router.push({name: 'login'})
-}
-
-const saveUsuario = async () =>{
-  try{
+const saveUsuario = async () => {
+  try {
     const dadosSalvar = {
       username: user.value.username,
-      nickname: user.value.password,
-      Password: user.value.password,
+      password: user.value.password,
+      nickname: user.value.nickname,
       email: user.value.email,
       phoneNumber: user.value.phonenumber,
     };
-    await userStore.registerUse(() =>{
-      useGlobalMessageStore().addMessage()({
-        type: "sucess",
-        text: "Salvo com suceso!",
+    if((dadosSalvar.username !=='') && (dadosSalvar.password!=='')){
+      await userStore.registerUser(dadosSalvar);
+      useGlobalMessageStore().addMessage({
+        type: "success",
+        text: "Salvo com sucesso!",
       });
-    },dadosSalvar);
-  }catch (error){
-    useGlobalMessageStore().addMessage({
-      type:"error",
-      text: "Error ao salvar o Usuario"
-    });
-  }
-};
+    }else{
+      useGlobalMessageStore().addMessage({
+        type: "error",
+        text: "preencha os campos",
+      });
+    }
 
-const registerUser = async () => {
-  if (!user.value.username || !user.value.password || !user.value.email) {
-    $q.notify({
-      type: 'negative',
-      message: 'Preencha todos os campos obrigatórios',
-    });
-    return;
-  }
-  try {
-    await userStore.registerUser(user.value);
-    $q.notify({
-      type: 'positive',
-      message: 'Usuário registrado com sucesso!',
-    });
   } catch (error) {
-    console.error('Erro ao registrar usuário:', error);
-    $q.notify({
-      type: 'negative',
-      message: 'Erro ao registrar usuário',
+    useGlobalMessageStore().addMessage({
+      type: "error",
+      text: "Erro ao salvar o usuário",
     });
   }
 };
@@ -73,27 +53,29 @@ function onReset() {
   user.value.password = '';
   user.value.email = '';
   user.value.nickname = '';
-  user.value.phonenumber='';
+  user.value.phonenumber = '';
 }
 
 const phoneMask = computed(() => {
-  return user.value.phonenumber.length <= 15 ? '(##) #####-####' : '(##) ######-####';
+  return user.value.phonenumber.length <= 10 ? '(##) ####-####' : '(##) #####-####';
 });
 
-
+const voltar = () => {
+  router.push({ name: 'login' });
+}
 </script>
 
-<style >
-  .tamanho{
-    width:600px;
-  }
 
+<style >
+.tamanho{
+  width:600px;
+}
 </style>
 
 <template>
   <q-layout>
-    <q-page-container >
-      <q-page class="flex flex-center" >
+    <q-page-container>
+      <q-page class="flex flex-center">
         <q-card class="tamanho" align="center">
           <q-card-section class="bg-blue-3">
             <div class="text-h6">Registrar Novo Usuário</div>
@@ -101,7 +83,7 @@ const phoneMask = computed(() => {
           </q-card-section>
 
           <q-card-section>
-            <q-form @submit.prevent="registerUser"  class="q-gutter-md">
+            <q-form @submit.prevent="saveUsuario"  class="q-gutter-md">
               <q-input filled v-model="user.username" label="Nome de usuário" :rules="[val => val && val.length > 0 || 'Por favor, preencha o nome de usuário']" />
               <q-input filled type="password" v-model="user.password" label="Senha" :rules="[val => val && val.length > 0 || 'Por favor, preencha a senha']" />
               <q-input filled v-model="user.email" label="Email" :rules="[val => val && val.length > 0 || 'Por favor, preencha o email']" />
@@ -118,7 +100,7 @@ const phoneMask = computed(() => {
             <div class="q-mt-md flex row">
 
               <div class="justify-end col-9 ">
-                <q-btn label="Registrar" type="submit" color="primary" class="q-mr-md" />
+                <q-btn label="Registrar" color="primary" class="q-mr-md" @click="saveUsuario" />
                 <q-btn label="Limpar" type="reset" color="primary" v-on="" outline @click="onReset" />
               </div>
 

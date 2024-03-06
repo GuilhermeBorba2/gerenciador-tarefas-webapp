@@ -3,21 +3,22 @@ import { ref } from 'vue'
 import { useQuasar } from 'quasar';
 import { useUserStore } from 'stores/user-store'
 import { useRouter } from 'vue-router';
+import { userUpdateStore } from 'stores/userUpdate-store'
 
 
 const $q = useQuasar();
 const userStore = useUserStore();
 const router = useRouter();
+const userUpdate = userUpdateStore();
 
 const credentials = ref({
-  username: '',
-  password: '',
+  username: '' ,
+  password: '' ,
 });
 
 const registrarUsuario=()=>{
   router.push({name: 'createuser'})
 }
-
 
 const onReset = () => {
   credentials.value.username = '';
