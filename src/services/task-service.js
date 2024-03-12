@@ -12,7 +12,7 @@ export const taskService = {
     return response.data;
   },
   async createTask(taskDto){
-    const response =await api.post(baseURL, taskDto);
+    const response = await api.post(`${baseURL}`, taskDto);
     return response.data;
   },
   async updateTask(id, taskDto){

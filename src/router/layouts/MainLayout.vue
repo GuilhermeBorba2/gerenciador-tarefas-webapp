@@ -22,6 +22,9 @@ const router = useRouter();
 const userUpdate = userUpdateStore();
 const loading =ref(false);
 const tasks = ref([]);
+const mostrarDialogoExclusao = ref(false);
+const idTarefaParaExcluir = ref(null);
+
 
 const name = userStore.userDetails?.nickname;
 const names = userUpdate.usuario.username
@@ -44,6 +47,16 @@ const pagination = ref({
 })
 
 
+const pedirConfirmacaoExclusao = (taskId) => {
+  idTarefaParaExcluir.value = taskId;
+  mostrarDialogoExclusao.value = true;
+};
+
+const confirmarExclusao = () => {
+  console.log(`Excluindo task com ID: ${idTarefaParaExcluir.value}`);
+  idTarefaParaExcluir.value = null;
+};
+
 const fecharPopup = async () => {
   if (mostrarPopup.value) mostrarPopup.value = false;
   if (mostrarPopupCriar.value) mostrarPopupCriar.value = false;
@@ -65,6 +78,14 @@ const loadTasks = async () => {
   loading.value = true;
   tasks.value = userStore.userDetails.tasks || [];
   loading.value = false;
+};
+
+const editarTask = (taskId) => {
+  console.log(`Editando task com ID: ${taskId}`);
+};
+
+const excluirTask = (taskId) => {
+  console.log(`Excluindo task com ID: ${taskId}`);
 };
 
 const criarTask = () =>{
@@ -104,12 +125,14 @@ const handleClickTask = () => {
 </script>
 
 <style>
-  .header-background {
-    background-image: url('src/assets/img2.webp');
-    background-size: cover;
-    background-position: center;
-  }
+ .logo-header{
+    background-image: url("src/assets/task.png");
+   background-position: left;
+   background-size: contain;
+   background-repeat: no-repeat;
+   height: 100px;
 
+ }
   .my-full-width {
     width: 100%;
   }
@@ -126,11 +149,10 @@ const handleClickTask = () => {
 
 
 <template>
-  <q-layout view="lHh Lpr lFf">
-    <q-header  class="header-background" elevated>
+  <q-layout view="lHh Lpr lFf" class="bg-grey-4">
+    <q-header  class="bg-blue-4 q-pa-none" elevated>
       <q-toolbar>
-        <q-toolbar-title class="text-grey-7 text-h4">
-        <b>Tasks</b>
+        <q-toolbar-title class=" logo-header q-pa-none">
         </q-toolbar-title>
         <div class=" q-mr-md">
           <span> olá, {{name}}</span>
@@ -140,16 +162,16 @@ const handleClickTask = () => {
           <q-list  class="bg-white">
             <q-item clickable v-close-popup  @click="handleClick" class="text-blue-7 bg-grey-4"  >Editar Usuario</q-item>
             <q-item clickable v-close-popup @click="criarTask" class="text-blue-7 bg-grey-4"> Criar Task </q-item>
-            <q-item clickable v-close-popup @click="logouts" class="text-blue-7 bg-grey-4" > Sair</q-item>
+            <q-item clickable v-close-popup @click="logouts"  class="text-blue-7 bg-grey-4" > Sair</q-item>
 
           </q-list>
         </q-btn-dropdown>
       </q-toolbar>
     </q-header>
-    <q-page-container>
+
+    <q-page-container class="q-mb-xs">
       <div class="flex justify-center">
         <q-input v-model="text" label="Descrição" :dense="dense" />
-
 
         <div class="q-pa-sm rounded-borders q-ml-sm" :class="$q.dark.isActive ? 'bg-grey-9' : 'bg-grey-2'">
           <q-toggle
@@ -158,14 +180,12 @@ const handleClickTask = () => {
             true-value="rock"
             label="Rock"
           />
-
           <q-toggle
             name="music_genre"
             v-model="genreFunk"
             true-value="funk"
             label="Funk"
           />
-
           <q-toggle
             name="music_genre"
             v-model="genrePop"
@@ -176,20 +196,18 @@ const handleClickTask = () => {
       </div>
     </q-page-container>
 
-
     <q-page-container>
-      <div v-if="loading" class="flex flex-center q-">
+      <div v-if="loading" class="flex flex-center q-mt-sm">
         <q-spinner color="primary" />
       </div>
-      <div v-else class="q-gutter-md " style="max-width: 100%">
+      <div v-else class="q-mt-none " style="max-width: 100%; margin-top: -100px ">
         <div class="row q-col-gutter-md q-ml-sm">
-          <q-card v-for="(task, index) in tasks" :key="index" class="my-card col-xs-12 col-sm-6 col-md-4 col-lg-3 q-ml-lg">
+          <q-card v-for="(task, index) in tasks" :key="index" class="my-card col-xs-12 col-sm-6 col-md-4 col-lg-3 q-ml-lg q-mt-md">
+
             <q-card-section>
               <div class="text-h6">Descrição:</div>
               <div class="text-subtitle2">{{ task.description }}</div>
             </q-card-section>
-
-            <!-- ... outras seções ... -->
 
             <q-card-section>
               <div class="text-h6">Status:</div>
@@ -197,10 +215,31 @@ const handleClickTask = () => {
                 {{ task.status }}
               </div>
             </q-card-section>
+
+            <q-card-section class="q-pt-none" style="margin-left: 335px">
+              <q-btn  icon="edit" class="q-mr-sm" color="primary" @click="editarTask(task.id)" round  ></q-btn>
+              <q-btn  icon="delete" color="negative" @click="pedirConfirmacaoExclusao(task.id)" round></q-btn>
+            </q-card-section>
+
+            <q-dialog v-model="mostrarDialogoExclusao" persistent>
+              <q-card>
+                <q-card-section class="row items-center">
+                  <q-avatar icon="warning" color="amber" text-color="white"></q-avatar>
+                  <span class="q-ml-sm">Você tem certeza que deseja excluir esta tarefa?</span>
+                </q-card-section>
+
+                <q-card-actions align="right">
+                  <q-btn flat label="Cancelar" color="primary" v-close-popup></q-btn>
+                  <q-btn flat label="Excluir" color="negative" @click="confirmarExclusao" v-close-popup></q-btn>
+                </q-card-actions>
+              </q-card>
+            </q-dialog>
+
           </q-card>
         </div>
       </div>
     </q-page-container>
+
 
     <!-- ... Editar Usuario... -->
     <q-dialog
@@ -247,7 +286,7 @@ const handleClickTask = () => {
 
     <!-- ... Create Task ... -->
     <q-dialog
-      v-model="mostrarPopupCriar" persistent>
+      v-model="mostrarPopupCriarTask" persistent>
       <q-card style="width: 30%; max-width: 100%; height: 700px ">
         <q-card-section class="bg-blue-5 q-pa-none q-mb-none ">
           <div class="flex row q-ml-sm">

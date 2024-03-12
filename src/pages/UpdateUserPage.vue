@@ -74,7 +74,6 @@ const phoneMask = computed(() => {
 }
 
 </style>
-
 <template>
   <q-layout>
     <q-page-container>
@@ -91,7 +90,7 @@ const phoneMask = computed(() => {
             </q-form>
           </q-card-section>
         </q-card>
-        <div class="" style="margin-bottom:190px">
+        <div class="justify-center" style="margin-bottom:190px">
           <q-btn label="Atualizar" color="primary" class="q-mr-md" @click="updateUsuario" />
           <q-btn label="Limpar" color="primary" outline @click="onReset" />
         </div>
