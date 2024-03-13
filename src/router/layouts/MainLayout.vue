@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useUserStore } from 'stores/user-store'
 import {userUpdateStore} from 'stores/userUpdate-store'
 import { useRouter } from 'vue-router';
@@ -24,7 +24,10 @@ const loading =ref(false);
 const tasks = ref([]);
 const mostrarDialogoExclusao = ref(false);
 const idTarefaParaExcluir = ref(null);
-
+const descricao = ref('')
+const filtroPendente = ref(true);
+const filtroEmAndamento = ref(true);
+const filtroConcluido = ref(true);
 
 const name = userStore.userDetails?.nickname;
 const names = userUpdate.usuario.username
@@ -45,7 +48,6 @@ const pagination = ref({
   page: 1,
   rowsPerPage: 5
 })
-
 
 const pedirConfirmacaoExclusao = (taskId) => {
   idTarefaParaExcluir.value = taskId;
@@ -101,6 +103,17 @@ onMounted(async () => {
 
 });
 
+const filteredTasks = computed(() => {
+  return tasks.value.filter((task) => {
+    if (!filtroPendente.value && task.status === 'Pendente') return false;
+    if (!filtroEmAndamento.value && task.status === 'Em Progresso') return false;
+    if (!filtroConcluido.value && task.status === 'Concluído') return false;
+    return task.description.toLowerCase().includes(descricao.value.toLowerCase());
+  });
+});
+
+
+
 const logouts = async () => {
   await userStore.logout();
   await userUpdate.limparUsuario();
@@ -127,10 +140,10 @@ const handleClickTask = () => {
 <style>
  .logo-header{
     background-image: url("src/assets/task.png");
-   background-position: left;
-   background-size: contain;
-   background-repeat: no-repeat;
-   height: 100px;
+    background-position: left;
+    background-size: contain;
+    background-repeat: no-repeat;
+    height: 100px;
 
  }
   .my-full-width {
@@ -149,7 +162,7 @@ const handleClickTask = () => {
 
 
 <template>
-  <q-layout view="lHh Lpr lFf" class="bg-grey-4">
+  <q-layout view="lHh Lpr lFf" >
     <q-header  class="bg-blue-4 q-pa-none" elevated>
       <q-toolbar>
         <q-toolbar-title class=" logo-header q-pa-none">
@@ -169,40 +182,25 @@ const handleClickTask = () => {
       </q-toolbar>
     </q-header>
 
-    <q-page-container class="q-mb-xs">
+    <q-page-container class="q-mb-xs ">
       <div class="flex justify-center">
-        <q-input v-model="text" label="Descrição" :dense="dense" />
+        <q-input  v-model="descricao" label="Descrição" :dense="dense" />
 
         <div class="q-pa-sm rounded-borders q-ml-sm" :class="$q.dark.isActive ? 'bg-grey-9' : 'bg-grey-2'">
-          <q-toggle
-            name="music_genre"
-            v-model="genreRock"
-            true-value="rock"
-            label="Rock"
-          />
-          <q-toggle
-            name="music_genre"
-            v-model="genreFunk"
-            true-value="funk"
-            label="Funk"
-          />
-          <q-toggle
-            name="music_genre"
-            v-model="genrePop"
-            true-value="pop"
-            label="Pop"
-          />
+          <q-toggle v-model="filtroPendente" label="Pendente" />
+          <q-toggle v-model="filtroEmAndamento" label="Em Progresso" />
+          <q-toggle v-model="filtroConcluido" label="Concluído" />
         </div>
       </div>
     </q-page-container>
 
     <q-page-container>
-      <div v-if="loading" class="flex flex-center q-mt-sm">
+      <div v-if="loading" class="flex  q-mt-lg">
         <q-spinner color="primary" />
       </div>
       <div v-else class="q-mt-none " style="max-width: 100%; margin-top: -100px ">
-        <div class="row q-col-gutter-md q-ml-sm">
-          <q-card v-for="(task, index) in tasks" :key="index" class="my-card col-xs-12 col-sm-6 col-md-4 col-lg-3 q-ml-lg q-mt-md">
+        <div class="row q-col-gutter-md justify-around">
+          <q-card v-for="(task, index) in filteredTasks" :key="index" class="my-card col-xs-12 col-xs-12 col-sm-6 col-md-4 col-lg-3 q-ml-sm q-mb-md bg-grey-4">
 
             <q-card-section>
               <div class="text-h6">Descrição:</div>

@@ -63,8 +63,7 @@ const login = async () => {
 
               <div class="q-mt-lg flex flex-center">
                 <q-btn label="Entrar" type="submit" color="primary" />
-                <q-btn class="q-ml-lg justify-end" outline label="esqueci a senha"  color="primary"/>
-                <q-btn class="q-mt-md justify-center" @click="registrarUsuario" label="Criar conta"  color="green"/>
+                <q-btn class="q-ml-md " @click="registrarUsuario" label="Criar conta"  color="green"/>
               </div>
             </q-form>
           </q-card-section>
